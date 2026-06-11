@@ -191,44 +191,44 @@ def main():
 
     p = sub.add_parser("set", help="Store a secret")
     p.add_argument("key", help="Key name")
-    p.add_argument("value", help="Secret value")
-    p.add_argument("--quiet", "-q", action="store_true", help="Suppress confirmation message")
+    p.add_argument("value", help="Secret value to encrypt and store")
+    p.add_argument("--quiet", "-q", action="store_true", help="Suppress 'vault: set' confirmation")
     p.set_defaults(func=cmd_set)
 
-    p = sub.add_parser("get", help="Retrieve a secret")
-    p.add_argument("key", help="Key name")
+    p = sub.add_parser("get", help="Retrieve a secret by key")
+    p.add_argument("key", help="Key name to look up")
     p.set_defaults(func=cmd_get)
 
-    p = sub.add_parser("show", help="Show key metadata (no value)")
-    p.add_argument("key", help="Key name")
+    p = sub.add_parser("show", help="Show key metadata (created date, no value)")
+    p.add_argument("key", help="Key name to inspect")
     p.set_defaults(func=cmd_show)
 
-    p = sub.add_parser("search", help="Search keys by pattern")
-    p.add_argument("query", help="Search query (case-insensitive)")
+    p = sub.add_parser("search", help="Search keys by name pattern")
+    p.add_argument("query", help="Case-insensitive search term")
     p.set_defaults(func=cmd_search)
 
-    p = sub.add_parser("list", help="List all keys")
+    p = sub.add_parser("list", help="List all stored keys")
     p.set_defaults(func=cmd_list)
 
-    p = sub.add_parser("rm", help="Delete a secret")
-    p.add_argument("key", help="Key name")
+    p = sub.add_parser("rm", help="Delete a secret by key")
+    p.add_argument("key", help="Key name to remove")
     p.set_defaults(func=cmd_rm)
 
-    p = sub.add_parser("mv", help="Rename a secret")
+    p = sub.add_parser("mv", help="Rename a key")
     p.add_argument("key", help="Current key name")
-    p.add_argument("newkey", help="New key name")
+    p.add_argument("newkey", help="New key name (must not exist)")
     p.set_defaults(func=cmd_mv)
 
-    p = sub.add_parser("cp", help="Copy a secret")
+    p = sub.add_parser("cp", help="Copy a key to a new name")
     p.add_argument("key", help="Source key name")
-    p.add_argument("newkey", help="Destination key name")
+    p.add_argument("newkey", help="Destination key name (must not exist)")
     p.set_defaults(func=cmd_cp)
 
-    p = sub.add_parser("export", help="Export all secrets as JSON")
+    p = sub.add_parser("export", help="Print all secrets as JSON to stdout")
     p.set_defaults(func=cmd_export)
 
-    p = sub.add_parser("import", help="Import secrets from JSON file")
-    p.add_argument("file", help="Path to JSON file")
+    p = sub.add_parser("import", help="Merge secrets from a JSON file")
+    p.add_argument("file", help="Path to JSON export file")
     p.set_defaults(func=cmd_import_store)
 
     args = parser.parse_args()
