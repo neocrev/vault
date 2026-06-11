@@ -143,6 +143,30 @@ def cmd_rm(args):
     _modify_store(args, mod)
     print(f"vault: removed '{args.key}'")
 
+def cmd_mv(args):
+    def mod(store):
+        if args.key not in store:
+            print(f"vault: key '{args.key}' not found.", file=sys.stderr)
+            sys.exit(1)
+        if args.newkey in store:
+            print(f"vault: key '{args.newkey}' already exists.", file=sys.stderr)
+            sys.exit(1)
+        store[args.newkey] = store.pop(args.key)
+    _modify_store(args, mod)
+    print(f"vault: renamed '{args.key}' -> '{args.newkey}'")
+
+def cmd_cp(args):
+    def mod(store):
+        if args.key not in store:
+            print(f"vault: key '{args.key}' not found.", file=sys.stderr)
+            sys.exit(1)
+        if args.newkey in store:
+            print(f"vault: key '{args.newkey}' already exists.", file=sys.stderr)
+            sys.exit(1)
+        store[args.newkey] = {**store[args.key], "created": datetime.now().isoformat()}
+    _modify_store(args, mod)
+    print(f"vault: copied '{args.key}' -> '{args.newkey}'")
+
 def cmd_export(args):
     store, _ = load_store()
     print(json.dumps(store, ensure_ascii=False, indent=2))
@@ -189,6 +213,16 @@ def main():
     p = sub.add_parser("rm", help="Delete a secret")
     p.add_argument("key", help="Key name")
     p.set_defaults(func=cmd_rm)
+
+    p = sub.add_parser("mv", help="Rename a secret")
+    p.add_argument("key", help="Current key name")
+    p.add_argument("newkey", help="New key name")
+    p.set_defaults(func=cmd_mv)
+
+    p = sub.add_parser("cp", help="Copy a secret")
+    p.add_argument("key", help="Source key name")
+    p.add_argument("newkey", help="Destination key name")
+    p.set_defaults(func=cmd_cp)
 
     p = sub.add_parser("export", help="Export all secrets as JSON")
     p.set_defaults(func=cmd_export)
