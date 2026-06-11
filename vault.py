@@ -86,7 +86,8 @@ def cmd_set(args):
     def mod(store):
         store[args.key] = {"value": args.value, "created": datetime.now().isoformat()}
     _modify_store(args, mod)
-    print(f"vault: set '{args.key}'")
+    if not args.quiet:
+        print(f"vault: set '{args.key}'")
 
 def cmd_get(args):
     store, _ = load_store()
@@ -94,6 +95,32 @@ def cmd_get(args):
         print(f"vault: key '{args.key}' not found.", file=sys.stderr)
         sys.exit(1)
     print(store[args.key]["value"])
+
+def cmd_show(args):
+    store, _ = load_store()
+    if not store or args.key not in store:
+        print(f"vault: key '{args.key}' not found.", file=sys.stderr)
+        sys.exit(1)
+    entry = store[args.key]
+    print(f"Key:     {args.key}")
+    print(f"Created: {entry.get('created', 'unknown')[:19]}")
+
+def cmd_search(args):
+    store, _ = load_store()
+    if not store:
+        print("vault: store is empty.")
+        return
+    query = args.query.lower()
+    matches = {k: v for k, v in store.items() if query in k.lower()}
+    if not matches:
+        print(f"vault: no keys matching '{args.query}'.")
+        return
+    width = max(len(k) for k in matches)
+    print(f"{'Key':<{width}}  Created")
+    print("-" * (width + 22))
+    for k, v in sorted(matches.items()):
+        created = v.get("created", "unknown")[:16]
+        print(f"{k:<{width}}  {created}")
 
 def cmd_list(args):
     store, _ = load_store()
@@ -141,11 +168,20 @@ def main():
     p = sub.add_parser("set", help="Store a secret")
     p.add_argument("key", help="Key name")
     p.add_argument("value", help="Secret value")
+    p.add_argument("--quiet", "-q", action="store_true", help="Suppress confirmation message")
     p.set_defaults(func=cmd_set)
 
     p = sub.add_parser("get", help="Retrieve a secret")
     p.add_argument("key", help="Key name")
     p.set_defaults(func=cmd_get)
+
+    p = sub.add_parser("show", help="Show key metadata (no value)")
+    p.add_argument("key", help="Key name")
+    p.set_defaults(func=cmd_show)
+
+    p = sub.add_parser("search", help="Search keys by pattern")
+    p.add_argument("query", help="Search query (case-insensitive)")
+    p.set_defaults(func=cmd_search)
 
     p = sub.add_parser("list", help="List all keys")
     p.set_defaults(func=cmd_list)
