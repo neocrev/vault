@@ -92,14 +92,14 @@ def cmd_set(args):
 def cmd_get(args):
     store, _ = load_store()
     if not store or args.key not in store:
-        print(f"vault: key '{args.key}' not found.", file=sys.stderr)
+        print(f"vault: key '{args.key}' not found. Use 'vault list' to see all keys.", file=sys.stderr)
         sys.exit(1)
     print(store[args.key]["value"])
 
 def cmd_show(args):
     store, _ = load_store()
     if not store or args.key not in store:
-        print(f"vault: key '{args.key}' not found.", file=sys.stderr)
+        print(f"vault: key '{args.key}' not found. Use 'vault list' to see all keys.", file=sys.stderr)
         sys.exit(1)
     entry = store[args.key]
     print(f"Key:     {args.key}")
@@ -146,10 +146,10 @@ def cmd_rm(args):
 def cmd_mv(args):
     def mod(store):
         if args.key not in store:
-            print(f"vault: key '{args.key}' not found.", file=sys.stderr)
+            print(f"vault: key '{args.key}' not found. Use 'vault list' to see all keys.", file=sys.stderr)
             sys.exit(1)
         if args.newkey in store:
-            print(f"vault: key '{args.newkey}' already exists.", file=sys.stderr)
+            print(f"vault: key '{args.newkey}' already exists. Choose a different name.", file=sys.stderr)
             sys.exit(1)
         store[args.newkey] = store.pop(args.key)
     _modify_store(args, mod)
@@ -158,10 +158,10 @@ def cmd_mv(args):
 def cmd_cp(args):
     def mod(store):
         if args.key not in store:
-            print(f"vault: key '{args.key}' not found.", file=sys.stderr)
+            print(f"vault: key '{args.key}' not found. Use 'vault list' to see all keys.", file=sys.stderr)
             sys.exit(1)
         if args.newkey in store:
-            print(f"vault: key '{args.newkey}' already exists.", file=sys.stderr)
+            print(f"vault: key '{args.newkey}' already exists. Choose a different name.", file=sys.stderr)
             sys.exit(1)
         store[args.newkey] = {**store[args.key], "created": datetime.now().isoformat()}
     _modify_store(args, mod)
