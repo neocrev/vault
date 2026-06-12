@@ -182,6 +182,24 @@ def cmd_import_store(args):
     _modify_store(args, mod)
     print(f"vault: imported {len(imported)} keys from '{args.file}'")
 
+def cmd_change_password(args):
+    if not STORE_FILE.exists():
+        print("vault: no store found. Run 'vault init' first.", file=sys.stderr)
+        sys.exit(1)
+    store, _ = load_store()
+    password = getpass.getpass("New master password: ")
+    confirm = getpass.getpass("Confirm: ")
+    if password != confirm:
+        print("vault: passwords do not match.", file=sys.stderr)
+        sys.exit(1)
+    if len(password) < 4:
+        print("vault: password must be at least 4 characters.", file=sys.stderr)
+        sys.exit(1)
+    salt = os.urandom(16)
+    SALT_FILE.write_bytes(salt)
+    save_store(store, password, salt)
+    print("vault: password changed.")
+
 def main():
     parser = argparse.ArgumentParser(description="Encrypted credential manager.")
     sub = parser.add_subparsers(dest="cmd")
@@ -230,6 +248,9 @@ def main():
     p = sub.add_parser("import", help="Merge secrets from a JSON file")
     p.add_argument("file", help="Path to JSON export file")
     p.set_defaults(func=cmd_import_store)
+
+    p = sub.add_parser("change-password", help="Change the master password")
+    p.set_defaults(func=cmd_change_password)
 
     args = parser.parse_args()
     if not args.cmd:
