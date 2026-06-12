@@ -94,7 +94,25 @@ def cmd_get(args):
     if not store or args.key not in store:
         print(f"vault: key '{args.key}' not found. Use 'vault list' to see all keys.", file=sys.stderr)
         sys.exit(1)
-    print(store[args.key]["value"])
+    val = store[args.key]["value"]
+    if args.clip:
+        try:
+            import subprocess
+            p = subprocess.run(["xclip", "-selection", "clipboard"], input=val, text=True, capture_output=True, timeout=5)
+            if p.returncode == 0:
+                print(f"vault: copied '{args.key}' to clipboard")
+                return
+        except: pass
+        try:
+            import subprocess
+            p = subprocess.run(["xsel", "-b"], input=val, text=True, capture_output=True, timeout=5)
+            if p.returncode == 0:
+                print(f"vault: copied '{args.key}' to clipboard")
+                return
+        except: pass
+        print("vault: clipboard tools not found (install xclip or xsel)", file=sys.stderr)
+        sys.exit(1)
+    print(val)
 
 def cmd_show(args):
     store, _ = load_store()
@@ -215,6 +233,7 @@ def main():
 
     p = sub.add_parser("get", help="Retrieve a secret by key")
     p.add_argument("key", help="Key name to look up")
+    p.add_argument("--clip", "-c", action="store_true", help="Copy to clipboard instead of stdout")
     p.set_defaults(func=cmd_get)
 
     p = sub.add_parser("show", help="Show key metadata (created date, no value)")
