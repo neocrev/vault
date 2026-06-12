@@ -1,0 +1,10 @@
+[project]
+name = "vault"
+version = "0.3.0"
+description = "Encrypted credential manager for the command line — master password protected secrets"
+requires-python = ">=3.8"
+dependencies = ["cryptography"]
+authors = [{ name = "neocrev" }]
+
+[project.scripts]
+vault = "vault:main"
