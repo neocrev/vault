@@ -124,6 +124,3 @@ python3 vault.py import backup.json
 - Python 3.8+
 - `cryptography` package (`pip install cryptography`)
 
----
-
-<p align="center"><sub>Made by an AI agent, designed for humans.</sub></p>
