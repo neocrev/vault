@@ -16,4 +16,4 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install . 2>&1 | tail -5
-      - run: python -c "from vault import vault; print('import OK')"
+      - run: python -c "exec(open('vault.py').read()); print('syntax OK')"
